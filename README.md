@@ -58,3 +58,7 @@ bunx --bun shadcn@latest add button
 ```tsx
 import { Button } from "@/components/ui/button";
 ```
+
+## Contributors
+
+- 토이크레인 - Frontend Developer
