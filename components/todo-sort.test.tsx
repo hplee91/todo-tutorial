@@ -3,11 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { TodoSort } from "@/components/todo-sort";
 
 describe("TodoSort", () => {
-  it("생성일순/이름순 정렬 옵션을 렌더링한다", () => {
+  it("생성일순/이름순/마감일순 정렬 옵션을 렌더링한다", () => {
     render(<TodoSort value="created" onChange={vi.fn()} />);
 
     expect(screen.getByRole("radio", { name: "생성일순" })).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "이름순" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "마감일순" })).toBeInTheDocument();
   });
 
   it("현재 선택된 정렬 옵션만 checked 상태다", () => {

@@ -54,11 +54,12 @@ export const TODO_FILTERS: { value: TodoFilter; label: string }[] = [
 ];
 
 // 목록 정렬 기준. 화면 표시용 상태로, 원본 데이터는 바꾸지 않는다.
-export type SortBy = "created" | "name";
+export type SortBy = "created" | "name" | "dueDate";
 
 export const DEFAULT_SORT: SortBy = "created";
 
 export const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: "created", label: "생성일순" },
   { value: "name", label: "이름순" },
+  { value: "dueDate", label: "마감일순" },
 ];

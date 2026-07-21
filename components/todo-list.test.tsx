@@ -232,6 +232,59 @@ describe("Todo 정렬", () => {
   });
 });
 
+// 마감일을 지정해 추가하는 헬퍼
+async function addTodoWithDueDate(
+  user: ReturnType<typeof userEvent.setup>,
+  text: string,
+  dueDate: string
+) {
+  fireEvent.change(screen.getByLabelText("마감일"), {
+    target: { value: dueDate },
+  });
+  await addTodo(user, text);
+}
+
+describe("Todo 마감일순 정렬", () => {
+  it("'마감일순' 선택 → 마감일이 가까운 항목부터 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+
+    await addTodoWithDueDate(user, "먼 마감", "2026-09-01");
+    await addTodoWithDueDate(user, "가까운 마감", "2026-08-01");
+    await addTodoWithDueDate(user, "중간 마감", "2026-08-15");
+
+    await user.click(screen.getByRole("radio", { name: "마감일순" }));
+
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("가까운 마감");
+    expect(items[1]).toHaveTextContent("중간 마감");
+    expect(items[2]).toHaveTextContent("먼 마감");
+  });
+
+  it("마감일 없는 항목 2개 + 있는 항목 3개 → 마감일 없는 항목은 맨 뒤에 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+
+    await addTodoWithDueDate(user, "마감1", "2026-08-01");
+    await addTodo(user, "마감없음1");
+    await addTodoWithDueDate(user, "마감2", "2026-08-15");
+    await addTodo(user, "마감없음2");
+    await addTodoWithDueDate(user, "마감3", "2026-09-01");
+
+    await user.click(screen.getByRole("radio", { name: "마감일순" }));
+
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(5);
+    expect(items[0]).toHaveTextContent("마감1");
+    expect(items[1]).toHaveTextContent("마감2");
+    expect(items[2]).toHaveTextContent("마감3");
+    // 마감일 없는 두 항목은 뒤쪽 두 자리에 위치한다
+    const lastTwoTexts = [items[3].textContent, items[4].textContent];
+    expect(lastTwoTexts.some((t) => t?.includes("마감없음1"))).toBe(true);
+    expect(lastTwoTexts.some((t) => t?.includes("마감없음2"))).toBe(true);
+  });
+});
+
 describe("Todo 마감일", () => {
   it("마감일 없이 추가 → 정상 추가되고 마감일 칸은 비어 있다", async () => {
     const user = userEvent.setup();

@@ -20,6 +20,13 @@ export function TodoList() {
 
   const sortedTodos = [...todos].sort((a, b) => {
     if (sortBy === "name") return a.text.localeCompare(b.text, "ko");
+    if (sortBy === "dueDate") {
+      // 마감일이 없는 항목은 항상 뒤로 보낸다.
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return a.dueDate.localeCompare(b.dueDate);
+    }
     return b.createdAt - a.createdAt;
   });
 
