@@ -1,18 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import type { TodoFilter as TodoFilterValue } from "@/lib/types";
+import {
+  DEFAULT_SORT,
+  type SortBy,
+  type TodoFilter as TodoFilterValue,
+} from "@/lib/types";
 import { useTodos } from "@/hooks/use-todos";
 import { TodoInput } from "@/components/todo-input";
 import { TodoFilter } from "@/components/todo-filter";
+import { TodoSort } from "@/components/todo-sort";
 import { TodoItem } from "@/components/todo-item";
 
 export function TodoList() {
   const { todos, loaded, addTodo, toggleTodo, deleteTodo, editTodo } =
     useTodos();
   const [filter, setFilter] = useState<TodoFilterValue>("all");
+  const [sortBy, setSortBy] = useState<SortBy>(DEFAULT_SORT);
 
-  const visibleTodos = todos.filter((todo) => {
+  const sortedTodos = [...todos].sort((a, b) => {
+    if (sortBy === "name") return a.text.localeCompare(b.text, "ko");
+    return b.createdAt - a.createdAt;
+  });
+
+  const visibleTodos = sortedTodos.filter((todo) => {
     if (filter === "active") return !todo.completed;
     if (filter === "completed") return todo.completed;
     return true;
@@ -23,6 +34,7 @@ export function TodoList() {
       <TodoInput onAdd={addTodo} />
 
       <TodoFilter value={filter} onChange={setFilter} />
+      <TodoSort value={sortBy} onChange={setSortBy} />
 
       {loaded && visibleTodos.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">

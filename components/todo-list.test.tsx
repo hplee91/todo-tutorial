@@ -205,6 +205,33 @@ describe("Todo 필터링", () => {
   });
 });
 
+describe("Todo 정렬", () => {
+  it("'이름순' 선택 → 가나다순으로 정렬된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+    await seedFiveTodos(user);
+
+    await user.click(screen.getByRole("radio", { name: "이름순" }));
+
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(5);
+    expect(items[0]).toHaveTextContent("할일1");
+    expect(items[4]).toHaveTextContent("할일5");
+  });
+
+  it("'생성일순' 선택 → 최근에 추가한 항목이 먼저 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+    await seedFiveTodos(user);
+
+    await user.click(screen.getByRole("radio", { name: "생성일순" }));
+
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("할일5");
+    expect(items[4]).toHaveTextContent("할일1");
+  });
+});
+
 describe("Todo 마감일", () => {
   it("마감일 없이 추가 → 정상 추가되고 마감일 칸은 비어 있다", async () => {
     const user = userEvent.setup();

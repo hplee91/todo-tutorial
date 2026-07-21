@@ -9,6 +9,7 @@ function makeTodo(overrides: Partial<Todo> = {}): Todo {
     text: "테스트 할 일",
     completed: false,
     priority: "medium",
+    createdAt: 0,
     ...overrides,
   };
 }

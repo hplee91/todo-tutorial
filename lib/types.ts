@@ -5,6 +5,8 @@ export interface Todo {
   text: string;
   completed: boolean;
   priority: Priority;
+  /** 생성 시각(ms). 생성일순 정렬의 키로 사용 */
+  createdAt: number;
   /** "YYYY-MM-DD" 형식. 지정하지 않으면 마감일 없음 */
   dueDate?: string;
 }
@@ -49,4 +51,14 @@ export const TODO_FILTERS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "전체" },
   { value: "active", label: "진행중" },
   { value: "completed", label: "완료" },
+];
+
+// 목록 정렬 기준. 화면 표시용 상태로, 원본 데이터는 바꾸지 않는다.
+export type SortBy = "created" | "name";
+
+export const DEFAULT_SORT: SortBy = "created";
+
+export const SORT_OPTIONS: { value: SortBy; label: string }[] = [
+  { value: "created", label: "생성일순" },
+  { value: "name", label: "이름순" },
 ];

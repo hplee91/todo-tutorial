@@ -57,6 +57,52 @@ describe("useTodos 우선순위", () => {
   });
 });
 
+describe("useTodos 생성일", () => {
+  it("새로 추가한 항목은 목록 맨 앞에 오고 createdAt이 숫자로 기록된다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기");
+    });
+
+    expect(typeof result.current.todos[0].createdAt).toBe("number");
+  });
+
+  it("나중에 추가한 항목의 createdAt이 먼저 추가한 항목보다 크거나 같다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("먼저");
+    });
+    act(() => {
+      result.current.addTodo("나중에");
+    });
+
+    // 배열은 최신 항목이 앞(index 0)에 온다
+    expect(result.current.todos[0].createdAt).toBeGreaterThanOrEqual(
+      result.current.todos[1].createdAt
+    );
+  });
+
+  it("createdAt이 없는 기존 저장 데이터도 순서를 유지한 채 보정해 로드한다", async () => {
+    localStorage.setItem(
+      "todos",
+      JSON.stringify([
+        { id: "1", text: "최근 항목", completed: false, priority: "medium" },
+        { id: "2", text: "오래된 항목", completed: false, priority: "medium" },
+      ])
+    );
+
+    const { result } = renderHook(() => useTodos());
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+    expect(typeof result.current.todos[0].createdAt).toBe("number");
+    expect(result.current.todos[0].createdAt).toBeGreaterThan(
+      result.current.todos[1].createdAt
+    );
+  });
+});
+
 describe("useTodos 마감일", () => {
   it("마감일을 지정해 추가하면 dueDate가 저장된다", () => {
     const { result } = renderHook(() => useTodos());

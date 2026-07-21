@@ -14,16 +14,23 @@ export function useTodos() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        // priority 도입 이전에 저장된 데이터와의 호환을 위해 기본값으로 보정
-        const parsed = JSON.parse(stored) as (Omit<Todo, "priority"> & {
+        // priority/createdAt 도입 이전에 저장된 데이터와의 호환을 위해 기본값으로 보정
+        const parsed = JSON.parse(stored) as (Omit<
+          Todo,
+          "priority" | "createdAt"
+        > & {
           priority?: Priority;
+          createdAt?: number;
         })[];
         // 마운트 후 localStorage 값으로 동기화 — hydration mismatch 방지를 위해 의도적으로 effect에서 설정
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setTodos(
-          parsed.map((todo) => ({
+          parsed.map((todo, index) => ({
             ...todo,
             priority: todo.priority ?? DEFAULT_PRIORITY,
+            // 저장 배열은 최신 항목이 앞(index 0)에 오므로, 순서를 보존하도록
+            // 앞쪽 항목일수록 큰 값을 부여한다.
+            createdAt: todo.createdAt ?? parsed.length - index,
           }))
         );
       }
@@ -51,6 +58,7 @@ export function useTodos() {
       text: trimmed,
       completed: false,
       priority,
+      createdAt: Date.now(),
       dueDate: dueDate || undefined,
     };
     setTodos((prev) => [todo, ...prev]);
