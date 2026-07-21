@@ -10,6 +10,7 @@ function makeTodo(overrides: Partial<Todo> = {}): Todo {
     completed: false,
     priority: "medium",
     createdAt: 0,
+    category: "work",
     ...overrides,
   };
 }
@@ -73,6 +74,19 @@ describe("TodoItem", () => {
     );
 
     expect(screen.getByText("높음")).toBeInTheDocument();
+  });
+
+  it("카테고리 라벨을 뱃지로 표시한다", () => {
+    render(
+      <TodoItem
+        todo={makeTodo({ category: "shopping" })}
+        onToggle={vi.fn()}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("쇼핑")).toBeInTheDocument();
   });
 
   it("완료된 할 일은 취소선 스타일을 가진다", () => {

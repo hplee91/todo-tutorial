@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DEFAULT_PRIORITY, type Priority, type Todo } from "@/lib/types";
+import {
+  DEFAULT_CATEGORY,
+  DEFAULT_PRIORITY,
+  type Category,
+  type Priority,
+  type Todo,
+} from "@/lib/types";
 
 const STORAGE_KEY = "todos";
 
@@ -14,13 +20,14 @@ export function useTodos() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        // priority/createdAt 도입 이전에 저장된 데이터와의 호환을 위해 기본값으로 보정
+        // priority/createdAt/category 도입 이전에 저장된 데이터와의 호환을 위해 기본값으로 보정
         const parsed = JSON.parse(stored) as (Omit<
           Todo,
-          "priority" | "createdAt"
+          "priority" | "createdAt" | "category"
         > & {
           priority?: Priority;
           createdAt?: number;
+          category?: Category;
         })[];
         // 마운트 후 localStorage 값으로 동기화 — hydration mismatch 방지를 위해 의도적으로 effect에서 설정
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -31,6 +38,7 @@ export function useTodos() {
             // 저장 배열은 최신 항목이 앞(index 0)에 오므로, 순서를 보존하도록
             // 앞쪽 항목일수록 큰 값을 부여한다.
             createdAt: todo.createdAt ?? parsed.length - index,
+            category: todo.category ?? DEFAULT_CATEGORY,
           }))
         );
       }
@@ -49,7 +57,8 @@ export function useTodos() {
   function addTodo(
     text: string,
     priority: Priority = DEFAULT_PRIORITY,
-    dueDate?: string
+    dueDate?: string,
+    category: Category = DEFAULT_CATEGORY
   ) {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -60,6 +69,7 @@ export function useTodos() {
       priority,
       createdAt: Date.now(),
       dueDate: dueDate || undefined,
+      category,
     };
     setTodos((prev) => [todo, ...prev]);
   }

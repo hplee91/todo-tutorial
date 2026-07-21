@@ -244,6 +244,20 @@ async function addTodoWithDueDate(
   await addTodo(user, text);
 }
 
+describe("Todo 카테고리 태그", () => {
+  it("'업무' 태그 지정 후 저장 → 목록에 태그가 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+
+    await user.click(screen.getByRole("radio", { name: "업무" }));
+    await addTodo(user, "보고서 작성");
+
+    const item = await screen.findByRole("listitem");
+    expect(item).toHaveTextContent("보고서 작성");
+    expect(item).toHaveTextContent("업무");
+  });
+});
+
 describe("Todo 검색", () => {
   it("'회의' 검색 → 제목에 '회의'를 포함한 항목만 표시된다", async () => {
     const user = userEvent.setup();

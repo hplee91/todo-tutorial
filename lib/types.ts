@@ -9,6 +9,7 @@ export interface Todo {
   createdAt: number;
   /** "YYYY-MM-DD" 형식. 지정하지 않으면 마감일 없음 */
   dueDate?: string;
+  category: Category;
 }
 
 export const DEFAULT_PRIORITY: Priority = "medium";
@@ -63,3 +64,39 @@ export const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: "name", label: "이름순" },
   { value: "dueDate", label: "마감일순" },
 ];
+
+export type Category = "work" | "personal" | "shopping";
+
+export const DEFAULT_CATEGORY: Category = "work";
+
+export interface CategoryMeta {
+  value: Category;
+  label: string;
+  /** 목록 뱃지에 적용할 Tailwind 색상 클래스 */
+  badgeClass: string;
+}
+
+// 카테고리 목록. 선택 UI와 뱃지가 공유한다.
+export const CATEGORIES: CategoryMeta[] = [
+  {
+    value: "work",
+    label: "업무",
+    badgeClass: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-500",
+  },
+  {
+    value: "personal",
+    label: "개인",
+    badgeClass:
+      "border-violet-500/30 bg-violet-500/10 text-violet-600 dark:text-violet-500",
+  },
+  {
+    value: "shopping",
+    label: "쇼핑",
+    badgeClass:
+      "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500",
+  },
+];
+
+export const CATEGORY_META: Record<Category, CategoryMeta> = Object.fromEntries(
+  CATEGORIES.map((meta) => [meta.value, meta])
+) as Record<Category, CategoryMeta>;

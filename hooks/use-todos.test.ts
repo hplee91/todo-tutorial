@@ -103,6 +103,42 @@ describe("useTodos 생성일", () => {
   });
 });
 
+describe("useTodos 카테고리", () => {
+  it("카테고리를 지정해 추가하면 해당 카테고리로 저장된다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("장보기", "medium", undefined, "shopping");
+    });
+
+    expect(result.current.todos[0].category).toBe("shopping");
+  });
+
+  it("카테고리를 생략하면 기본값(업무)으로 추가한다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("청소");
+    });
+
+    expect(result.current.todos[0].category).toBe("work");
+  });
+
+  it("category가 없는 기존 저장 데이터는 업무로 보정해 로드한다", async () => {
+    localStorage.setItem(
+      "todos",
+      JSON.stringify([
+        { id: "1", text: "구버전 할 일", completed: false, priority: "medium" },
+      ])
+    );
+
+    const { result } = renderHook(() => useTodos());
+
+    await waitFor(() => expect(result.current.loaded).toBe(true));
+    expect(result.current.todos[0].category).toBe("work");
+  });
+});
+
 describe("useTodos 마감일", () => {
   it("마감일을 지정해 추가하면 dueDate가 저장된다", () => {
     const { result } = renderHook(() => useTodos());
