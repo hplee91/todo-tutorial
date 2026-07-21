@@ -244,6 +244,39 @@ async function addTodoWithDueDate(
   await addTodo(user, text);
 }
 
+describe("Todo 검색", () => {
+  it("'회의' 검색 → 제목에 '회의'를 포함한 항목만 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+    await addTodo(user, "팀 회의 준비");
+    await addTodo(user, "장보기");
+    await addTodo(user, "주간 회의록 정리");
+
+    await user.type(screen.getByRole("textbox", { name: "검색" }), "회의");
+
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(screen.getByText("팀 회의 준비")).toBeInTheDocument();
+    expect(screen.getByText("주간 회의록 정리")).toBeInTheDocument();
+    expect(screen.queryByText("장보기")).not.toBeInTheDocument();
+  });
+
+  it("검색어를 지우면 전체 목록이 복원된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+    await addTodo(user, "팀 회의 준비");
+    await addTodo(user, "장보기");
+
+    const searchInput = screen.getByRole("textbox", { name: "검색" });
+    await user.type(searchInput, "회의");
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+
+    await user.clear(searchInput);
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+  });
+});
+
 describe("Todo 마감일순 정렬", () => {
   it("'마감일순' 선택 → 마감일이 가까운 항목부터 표시된다", async () => {
     const user = userEvent.setup();
