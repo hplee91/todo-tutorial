@@ -3,12 +3,14 @@
 import { useState } from "react";
 import {
   DEFAULT_SORT,
+  type CategoryFilter,
   type SortBy,
   type TodoFilter as TodoFilterValue,
 } from "@/lib/types";
 import { useTodos } from "@/hooks/use-todos";
 import { TodoInput } from "@/components/todo-input";
 import { TodoFilter } from "@/components/todo-filter";
+import { TodoCategoryFilter } from "@/components/todo-category-filter";
 import { TodoSort } from "@/components/todo-sort";
 import { TodoSearch } from "@/components/todo-search";
 import { TodoItem } from "@/components/todo-item";
@@ -17,6 +19,7 @@ export function TodoList() {
   const { todos, loaded, addTodo, toggleTodo, deleteTodo, editTodo } =
     useTodos();
   const [filter, setFilter] = useState<TodoFilterValue>("all");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const [sortBy, setSortBy] = useState<SortBy>(DEFAULT_SORT);
   const [query, setQuery] = useState("");
 
@@ -37,6 +40,8 @@ export function TodoList() {
   const visibleTodos = sortedTodos.filter((todo) => {
     if (filter === "active" && todo.completed) return false;
     if (filter === "completed" && !todo.completed) return false;
+    if (categoryFilter !== "all" && todo.category !== categoryFilter)
+      return false;
     if (trimmedQuery && !todo.text.toLowerCase().includes(trimmedQuery))
       return false;
     return true;
@@ -48,6 +53,7 @@ export function TodoList() {
 
       <TodoSearch value={query} onChange={setQuery} />
       <TodoFilter value={filter} onChange={setFilter} />
+      <TodoCategoryFilter value={categoryFilter} onChange={setCategoryFilter} />
       <TodoSort value={sortBy} onChange={setSortBy} />
 
       {loaded && visibleTodos.length === 0 ? (

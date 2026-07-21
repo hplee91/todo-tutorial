@@ -100,3 +100,11 @@ export const CATEGORIES: CategoryMeta[] = [
 export const CATEGORY_META: Record<Category, CategoryMeta> = Object.fromEntries(
   CATEGORIES.map((meta) => [meta.value, meta])
 ) as Record<Category, CategoryMeta>;
+
+// 카테고리별 목록 필터. URL/localStorage에 저장하지 않는 화면 표시용 상태.
+export type CategoryFilter = "all" | Category;
+
+export const CATEGORY_FILTERS: { value: CategoryFilter; label: string }[] = [
+  { value: "all", label: "전체" },
+  ...CATEGORIES.map((meta) => ({ value: meta.value, label: meta.label })),
+];

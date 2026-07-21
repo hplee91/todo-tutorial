@@ -1,6 +1,18 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TodoList } from "@/components/todo-list";
+
+// "업무"/"개인"/"쇼핑"/"전체" 라벨은 카테고리 선택(입력)과 카테고리 필터에 중복 등장하므로
+// 각 라디오그룹 범위로 좁혀서 조회하는 헬퍼.
+function categoryRadioGroup() {
+  return screen.getByRole("radiogroup", { name: "카테고리" });
+}
+function categoryFilterRadioGroup() {
+  return screen.getByRole("radiogroup", { name: "카테고리 필터" });
+}
+function statusFilterRadioGroup() {
+  return screen.getByRole("radiogroup", { name: "필터" });
+}
 
 // TodoList는 useTodos(localStorage)를 직접 사용하므로
 // 입력 → 목록 → 영속화까지 전체 흐름을 통합으로 검증한다.
@@ -128,7 +140,9 @@ describe("Todo 필터링", () => {
     render(<TodoList />);
     await seedFiveTodos(user);
 
-    await user.click(screen.getByRole("radio", { name: "전체" }));
+    await user.click(
+      within(statusFilterRadioGroup()).getByRole("radio", { name: "전체" })
+    );
 
     expect(screen.getAllByRole("listitem")).toHaveLength(5);
   });
@@ -249,12 +263,60 @@ describe("Todo 카테고리 태그", () => {
     const user = userEvent.setup();
     render(<TodoList />);
 
-    await user.click(screen.getByRole("radio", { name: "업무" }));
+    await user.click(
+      within(categoryRadioGroup()).getByRole("radio", { name: "업무" })
+    );
     await addTodo(user, "보고서 작성");
 
     const item = await screen.findByRole("listitem");
     expect(item).toHaveTextContent("보고서 작성");
     expect(item).toHaveTextContent("업무");
+  });
+});
+
+// 지정한 카테고리를 선택해 항목을 추가하는 헬퍼
+async function addTodoWithCategory(
+  user: ReturnType<typeof userEvent.setup>,
+  text: string,
+  categoryLabel: string
+) {
+  await user.click(
+    within(categoryRadioGroup()).getByRole("radio", { name: categoryLabel })
+  );
+  await addTodo(user, text);
+}
+
+describe("Todo 카테고리별 필터", () => {
+  it("'업무' 필터 선택 → 업무 태그 항목만 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+    await addTodoWithCategory(user, "보고서 작성", "업무");
+    await addTodoWithCategory(user, "병원 예약", "개인");
+    await addTodoWithCategory(user, "생필품 구매", "쇼핑");
+
+    await user.click(
+      within(categoryFilterRadioGroup()).getByRole("radio", { name: "업무" })
+    );
+
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent("보고서 작성");
+  });
+
+  it("'전체' 선택 → 카테고리 필터가 해제되고 전체 목록이 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+    await addTodoWithCategory(user, "보고서 작성", "업무");
+    await addTodoWithCategory(user, "병원 예약", "개인");
+    await addTodoWithCategory(user, "생필품 구매", "쇼핑");
+
+    const filterGroup = categoryFilterRadioGroup();
+    await user.click(within(filterGroup).getByRole("radio", { name: "업무" }));
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+
+    await user.click(within(filterGroup).getByRole("radio", { name: "전체" }));
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
   });
 });
 
