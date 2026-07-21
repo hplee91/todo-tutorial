@@ -6,18 +6,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 interface TodoInputProps {
-  onAdd: (text: string, priority: Priority) => void;
+  onAdd: (text: string, priority: Priority, dueDate?: string) => void;
 }
 
 export function TodoInput({ onAdd }: TodoInputProps) {
   const [value, setValue] = useState("");
   const [priority, setPriority] = useState<Priority>(DEFAULT_PRIORITY);
+  const [dueDate, setDueDate] = useState("");
+
+  function submit() {
+    onAdd(value, priority, dueDate || undefined);
+    setValue("");
+    setPriority(DEFAULT_PRIORITY);
+    setDueDate("");
+  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    onAdd(value, priority);
-    setValue("");
-    setPriority(DEFAULT_PRIORITY);
+    submit();
+  }
+
+  // 입력 필드가 두 개 이상이면 브라우저의 암묵적 Enter 제출이 동작하지 않으므로
+  // "새 할 일" 입력에서는 Enter를 명시적으로 처리한다.
+  function handleTextKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      submit();
+    }
   }
 
   return (
@@ -25,8 +40,16 @@ export function TodoInput({ onAdd }: TodoInputProps) {
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleTextKeyDown}
         placeholder="할 일을 입력하고 Enter를 누르세요"
         aria-label="새 할 일"
+      />
+
+      <Input
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+        aria-label="마감일"
       />
 
       <div role="radiogroup" aria-label="우선순위" className="flex gap-1">

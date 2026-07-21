@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TodoList } from "@/components/todo-list";
 
@@ -202,5 +202,32 @@ describe("Todo 필터링", () => {
 
     expect(screen.queryByText("할일5")).not.toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(1);
+  });
+});
+
+describe("Todo 마감일", () => {
+  it("마감일 없이 추가 → 정상 추가되고 마감일 칸은 비어 있다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+
+    await addTodo(user, "장보기");
+
+    const item = await screen.findByRole("listitem");
+    expect(item).toHaveTextContent("장보기");
+    expect(screen.queryByText(/\d{4}-\d{2}-\d{2}/)).not.toBeInTheDocument();
+  });
+
+  it("마감일 있는 Todo 추가 → 목록에 마감일이 표시된다", async () => {
+    const user = userEvent.setup();
+    render(<TodoList />);
+
+    fireEvent.change(screen.getByLabelText("마감일"), {
+      target: { value: "2026-08-01" },
+    });
+    await addTodo(user, "보고서 제출");
+
+    const item = await screen.findByRole("listitem");
+    expect(item).toHaveTextContent("보고서 제출");
+    expect(item).toHaveTextContent("2026-08-01");
   });
 });

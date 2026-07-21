@@ -5,6 +5,8 @@ export interface Todo {
   text: string;
   completed: boolean;
   priority: Priority;
+  /** "YYYY-MM-DD" 형식. 지정하지 않으면 마감일 없음 */
+  dueDate?: string;
 }
 
 export const DEFAULT_PRIORITY: Priority = "medium";

@@ -39,7 +39,11 @@ export function useTodos() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
   }, [todos, loaded]);
 
-  function addTodo(text: string, priority: Priority = DEFAULT_PRIORITY) {
+  function addTodo(
+    text: string,
+    priority: Priority = DEFAULT_PRIORITY,
+    dueDate?: string
+  ) {
     const trimmed = text.trim();
     if (!trimmed) return;
     const todo: Todo = {
@@ -47,6 +51,7 @@ export function useTodos() {
       text: trimmed,
       completed: false,
       priority,
+      dueDate: dueDate || undefined,
     };
     setTodos((prev) => [todo, ...prev]);
   }

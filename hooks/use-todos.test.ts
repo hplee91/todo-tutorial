@@ -56,3 +56,25 @@ describe("useTodos 우선순위", () => {
     });
   });
 });
+
+describe("useTodos 마감일", () => {
+  it("마감일을 지정해 추가하면 dueDate가 저장된다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("보고서 제출", "medium", "2026-08-01");
+    });
+
+    expect(result.current.todos[0].dueDate).toBe("2026-08-01");
+  });
+
+  it("마감일 없이 추가하면 dueDate가 없다", () => {
+    const { result } = renderHook(() => useTodos());
+
+    act(() => {
+      result.current.addTodo("청소");
+    });
+
+    expect(result.current.todos[0].dueDate).toBeUndefined();
+  });
+});
