@@ -14,7 +14,7 @@ export default function Page() {
         <div>
           {title}
           <p className="font-mono text-xs text-muted-foreground">
-            (Press <kbd>d</kbd> to toggle dark mode)
+            (Tip: press <kbd>d</kbd> for a cozy dark mode)
           </p>
         </div>
         <TodoList />
